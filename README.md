@@ -30,3 +30,13 @@ Si Node a été installée correctement, cette commande affichera dans le termin
 - `npm i sqlite3`
 - `npm i bcryptjs`
 - `npm i jsonwebtoken`
+
+--- 
+
+# Testing
+
+Depuis le terminal
+
+1. `npm install`
+2. `npm run e2e`
+3. Se laisser guider par cypress depuis l'UI (User interface)
