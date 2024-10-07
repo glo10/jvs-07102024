@@ -1,0 +1,8 @@
+export const emailElt = 'input[type=email]'
+export const pwdElt = 'input[type=password]'
+export const helpEmailMsg = 'Veuillez saisir votre adresse e-mail !'
+export const helpPwdMsg = 'Veuillez saisir votre mot de passe !'
+export const sbmtElt = 'input[type=submit]'
+export const emailVal = 'contact@tshimini.fr'
+export const pwdVal = '123456'
+export const alertDangerClass = '.alert-danger'
