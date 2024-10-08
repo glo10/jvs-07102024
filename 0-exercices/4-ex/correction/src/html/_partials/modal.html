@@ -1,0 +1,25 @@
+  <!--
+    - {{thumbnail.url}}
+    - {{link}}
+    - {{description}}
+    - {{author}}
+    - {{pubDate}}
+    à remplacer par les variables JS lors du fetch après avoir récupérer le contenu de cette page
+   -->
+<div class="modal">
+  <div class="modal-content">
+    <header>
+      <span class="close">&times;</span>
+      <h5 class="modal-title">{{title}}</h5>
+    </header>
+    <div>
+      <img src="{{thumbnail.url}}" alt="image of article" />
+      <div class="card-text">{{description}}</div>
+    </div>
+    <footer>
+      <p>{{author}}</p>
+      <p>{{pubDate}}</p>
+      <button class="btn btn-close">Fermer</button>
+    </footer>
+  </div>
+</div>
