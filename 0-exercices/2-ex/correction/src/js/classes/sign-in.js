@@ -3,22 +3,9 @@ export default class SignIn {
    * Constructeur appelé lors de la création d'un objet à l'aide de l'opérateur new SignIn
    * @returns void
    */
-  constructor () {
-    /**
-     * Idéalement placer les tableaux d'inputs et le submit dans les paramètres du constructeur
-     * Pour rendre la classe plus générique
-     */ 
-    this.inputs = [ // Nos inputs element dans le DOM + message d'aide
-      {
-        selector: 'input[type=email]',
-        msg: 'Veuillez saisir votre adresse e-mail !'
-      },
-      {
-        selector: 'input[type=password]',
-        msg: 'Veuillez saisir votre mot de passe !'
-      }
-    ]
-    this.submit = 'input[type=submit]'
+  constructor (inputs, submitElt) {
+    this.inputs = inputs
+    this.submit = submitElt
   }
 
   /**
