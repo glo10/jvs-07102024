@@ -1,4 +1,4 @@
-# Exercice 1
+# Correction exercice 1
 
 ## Arborescence des dossiers
 
@@ -8,6 +8,7 @@
 - **[js/](./js/) : dossier dans lequel, vous devez travailler pour écrire vos scripts**
 
 PS: par rapport aux sources données, le dossier ***data*** a été supprimé car non exploité pour le moment.
+
 ## Lancement
 
 1. Ouvrir le fichier [html/index.html](./html/index.html)
