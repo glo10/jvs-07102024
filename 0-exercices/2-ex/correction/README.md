@@ -1,4 +1,4 @@
-# Correction xercice 2
+# Correction exercice 2
 
 ## Modifications par rapport au code source de l'exercice 1
 
