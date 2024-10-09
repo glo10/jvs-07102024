@@ -9,6 +9,6 @@ window.addEventListener('load', () => {
       computedWorker.postMessage({ message: 'calcul', number: value })
     })
   computedWorker.onmessage = (event) => {
-    console.log('réponse du webworker', event.data.length)
+    console.log('réponse du webworker', event.data)
   }
 })
