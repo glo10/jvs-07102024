@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        h3, div {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Titre 1</h1>
+    <h2>Titre 2</h2>
+    <h3>Titre 3</h3>
+    <p id="p1" class="p">Paragraphe 1</p>
+    <p class="p">Paragraphe 2</p>
+    <button>click</button>
+    <div></div>
+    <button id="btn-h3">Cacher/Afficher h3</button>
+    <script src="./jquery.3.7.1.min.js"></script>
+    <script>
+        // Une fois que JQuery est chargée il y a une variable gloable JQuery et son alias $
+        console.log('jquery',$)
+        // DOM séléctionner les éléments
+        const h1 = $('h1')
+        console.log('h1', h1)
+        const p = $('p')
+        console.log('paragraph', p)
+        // DOM événements on = addEventListener avec du VanillaJS
+        $('button:first-of-type').on('click mouseleave', () =>  {
+            alert('click')
+        })
+        // Animation
+        $('#btn-h3').on('click', () => {
+            $('h3').slideToggle(5000)
+        })
+        // Requêtes asynchrone
+        $.getJSON('https://jsonplaceholder.typicode.com/users', (data) =>  {
+            console.log('data', data)
+            let content = ''
+            data.forEach(user => {
+                content += `<p>${user.name}</p>`
+            })
+            $('div').html(content).fadeIn(3000)
+        })
+        $('p').each((i, el) => {
+            console.log('p avec each', i, el)
+        })
+    </script>
+</body>
+</html>
