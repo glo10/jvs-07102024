@@ -21,13 +21,20 @@ http.on('app:db:closed', () => {
 http.on('request', async (req, res) => {
   req.setEncoding('utf8')
   if (/post/i.test(req.method)) {
-    db = await db.connect()
-    if (/\/signup$/.test(req.url)) {
-      req.on('data', (data) => {
-        http.emit('app:subscribe', data, res)
-      })
-    } else { // mauvaise requête côté client
-      http.emit('app:404', '{"message":"wrong endpoint"}', res)
+    try{
+      // if(db.instance === undefined) {
+      db = await db.connect()
+      // }
+      if (/\/signup$/.test(req.url)) {
+        req.on('data', (data) => {
+          http.emit('app:subscribe', data, res)
+        })
+      } else { // mauvaise requête côté client
+        http.emit('app:404', '{"message":"wrong endpoint"}', res)
+      }
+    } catch (error) {
+      console.error('Database error connection:', error);
+      http.emit('app:404', '{"message":"database error"}', res);
     }
   } else { // Pas une méthode POST
     http.emit('app:404', '{"message":"wrong HTTP Method"}', res)
@@ -35,27 +42,32 @@ http.on('request', async (req, res) => {
 })
 
 http.on('app:subscribe', async (data, res) => { // à l'écoute de l'événment app:subscribe
-  data = JSON.parse(data)
-  data = [
-    data.lastname,
-    data.firstname,
-    data.email,
-    data.password,
-    data.age,
-    data.country,
-    data.city,
-    data.cityLatitude,
-    data.cityLongitude
-  ]
-
-  // cherche à insérer un user dans la bdd
-  db.instance.run(db.requests.insert, data, (error) => {
-    if (error) { // insertion non réussi
-      http.emit('app:404', '{"message":"user already exists"}', res)
-    } else { // insertion réussi
-      http.emit('success', '{"message":"success"}', res) // emission de l'événement success
-    }
-  })
+  try {
+    data = JSON.parse(data)
+    data = [
+      data.lastname,
+      data.firstname,
+      data.email,
+      data.password,
+      data.age,
+      data.country,
+      data.city,
+      data.cityLatitude,
+      data.cityLongitude
+    ]
+  
+    // cherche à insérer un user dans la bdd
+    db.instance.run(db.requests.insert, data, (error) => {
+      if (error) { // insertion non réussi
+        http.emit('app:404', '{"message":"user already exists"}', res)
+      } else { // insertion réussi
+        http.emit('success', '{"message":"success"}', res) // emission de l'événement success
+      }
+    })
+  } catch(error) {
+    console.error('Error subscription:', error);
+    http.emit('app:404', '{"message":"subscription error"}', res);
+  }
 })
 
 http.on('success', (data, res) => { // à l'écoute de l'évément success
