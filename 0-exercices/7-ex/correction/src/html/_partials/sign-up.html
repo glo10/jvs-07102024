@@ -1,0 +1,78 @@
+<h1>Inscription</h1>
+<form autocomplete="off">
+  <div class="my-3">
+    <p class="form-help"></p>
+    <input
+      type="text"
+      class="form-control"
+      name="lastname"
+      placeholder="Nom"
+      data-format="Au moins 2 caractères, aucun chiffre"
+    >
+  </div>
+  <div class="my-3">
+    <p class="form-help"></p>
+    <input
+      type="text"
+      class="form-control"
+      name="firstname"
+      placeholder="Prénom"
+      data-format="Au moins 2 caractères, aucun chiffre"
+    >
+  </div>
+  <div class="my-3">
+    <p class="form-help"></p>
+    <input
+      type="email"
+      class="form-control"
+      name="email"
+      placeholder="email"
+      data-format="Exemple contact@tshimini.fr, extension maximum 10 caractères"
+    >
+  </div>
+  <div class="my-3">
+    <p class="form-help"></p>
+    <input
+      type="password"
+      class="form-control"
+      name="password"
+      placeholder="Saisissez votre mot de passe"
+      data-format="Entre 15 et 36 caractères (miniscule, majuscule, chiffres et caractères spéciaux &amp; $ + - * / # ~ € % ^ ! - _`)"
+    >
+  </div>
+  <div class="my-3">
+    <p class="form-help"></p>
+    <input
+      type="number"
+      class="form-control"
+      name="age"
+      placeholder="Age"
+      data-format="Age compris entre 14 et 130 ans"
+    >
+  </div>
+  <div class="my-3">
+    <p class="form-help"></p>
+    <select name="country">
+      <option value="-1" disabled selected>Choisissez un pays</option>
+    </select>
+  </div>
+  <div class="my-3">
+    <p class="form-help"></p>
+    <select name="city">
+      <option value="-1" disabled selected>Choisissez une ville</option>
+    </select>
+  </div>
+  <div>
+    <input type="hidden" name="cityLatitude">
+    <input type="hidden" name="cityLongitude">
+  </div>
+  <div class="my-3 align-right">
+    <input
+      type="submit"
+      value="Valider"
+      class="btn btn-success me-5"
+      data-endpoint="signup"
+    >
+    <a href="index.html" class="btn btn-info">Connexion</a>
+  </div>
+</form>
