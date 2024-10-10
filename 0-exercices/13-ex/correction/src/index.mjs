@@ -1,8 +1,8 @@
 import { createServer } from 'node:http'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import Database from './db.mjs'
-import { requests } from './user-table-requests.mjs'
+import Database from './classes/db.mjs'
+import { requests } from './database/user-table-requests.mjs'
 
 const PORT = 7000
 const BASE = `http://localhost:${PORT}/`
@@ -12,7 +12,7 @@ const http = createServer().listen(PORT, () => {
 const headers = { 'Content-Type': 'application/json' }
 // Résolution de chemin pour récupérer le fichier app.sqlite
 const DIR = dirname(fileURLToPath(import.meta.url))
-const dbFile = resolve(DIR, 'app.sqlite')
+const dbFile = resolve(DIR, 'database', 'app.sqlite')
 let db = new Database(dbFile, requests)
 const responseMessage = (message) => `{"message":"${message}"}`
 const formValidation = (data) => {
@@ -60,7 +60,6 @@ http.on('app:subscribe', async (data, res) => { // à l'écoute de l'événment 
   try {
     db = await db.connect()
     data = formValidation(data)
-    console.log('data', data)
     // cherche à insérer un user dans la bdd
     db.instance.run(db.requests.insert, data, (error) => {
       let msg = responseMessage('user already exists')

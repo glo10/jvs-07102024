@@ -2,10 +2,10 @@ import sqlite3 from 'sqlite3'
 import { readFile } from 'node:fs/promises'
 
 export default class Db {
+  instance
   constructor (filename, requests) {
     this.filename = filename
     this.requests = requests
-    this.instance = null
   }
 
   async connect () { // Connexion à la base de données sqlite (un fichier)
