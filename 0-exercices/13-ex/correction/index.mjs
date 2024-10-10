@@ -10,76 +10,72 @@ const http = createServer().listen(PORT, () => {
   console.info(`Server on ${BASE}`)
 })
 const headers = { 'Content-Type': 'application/json' }
+// Résolution de chemin pour récupérer le fichier app.sqlite
 const DIR = dirname(fileURLToPath(import.meta.url))
 const dbFile = resolve(DIR, 'app.sqlite')
 let db = new Database(dbFile, requests)
-
-http.on('app:db:closed', () => {
-  db.end()
-})
-
-http.on('request', async (req, res) => {
+const responseMessage = (message) => `{"message":"${message}"}`
+const formValidation = (data) => {
+  data = JSON.parse(data)
+  if (!data.email || !data.password) {
+    throw new Error('email or password required')
+  }
+  data = [
+    data.lastname,
+    data.firstname,
+    data.email,
+    data.password,
+    data.age,
+    data.country,
+    data.city,
+    data.cityLatitude,
+    data.cityLongitude
+  ]
+  return data
+}
+// Fermeture connexion à la BDD
+http.on('app:db:closed', () => db.end())
+// Traitement de la requête
+http.on('request', (req, res) => {
   req.setEncoding('utf8')
   if (/post/i.test(req.method)) {
-    try{
-      // if(db.instance === undefined) {
-      db = await db.connect()
-      // }
+    try {
       if (/\/signup$/.test(req.url)) {
-        req.on('data', (data) => {
-          http.emit('app:subscribe', data, res)
-        })
+        let body = ''
+        req.on('data', (chunk) => { body += chunk })
+        req.on('end', () => http.emit('app:subscribe', body, res))
       } else { // mauvaise requête côté client
-        http.emit('app:404', '{"message":"wrong endpoint"}', res)
+        http.emit('app:end', responseMessage('wrong endpoint'), res)
       }
     } catch (error) {
-      console.error('Database error connection:', error);
-      http.emit('app:404', '{"message":"database error"}', res);
+      // Attention, renvoyer directement l'erreur au client peut avoir des lourdes csq au niveau de la sécurité
+      http.emit('app:end', responseMessage(`database error : ${error.message}`), res)
     }
   } else { // Pas une méthode POST
-    http.emit('app:404', '{"message":"wrong HTTP Method"}', res)
+    http.emit('app:end', responseMessage('wrong HTTP Method'), res)
   }
 })
-
+// Traitement des données envoyées
 http.on('app:subscribe', async (data, res) => { // à l'écoute de l'événment app:subscribe
   try {
-    data = JSON.parse(data)
-    data = [
-      data.lastname,
-      data.firstname,
-      data.email,
-      data.password,
-      data.age,
-      data.country,
-      data.city,
-      data.cityLatitude,
-      data.cityLongitude
-    ]
-  
+    db = await db.connect()
+    data = formValidation(data)
+    console.log('data', data)
     // cherche à insérer un user dans la bdd
     db.instance.run(db.requests.insert, data, (error) => {
-      if (error) { // insertion non réussi
-        http.emit('app:404', '{"message":"user already exists"}', res)
-      } else { // insertion réussi
-        http.emit('success', '{"message":"success"}', res) // emission de l'événement success
+      let msg = responseMessage('user already exists')
+      if (!error) { // insertion non réussi
+        msg = responseMessage('success')
       }
+      http.emit('app:end', msg, res)
     })
-  } catch(error) {
-    console.error('Error subscription:', error);
-    http.emit('app:404', '{"message":"subscription error"}', res);
+  } catch (error) {
+    http.emit('app:end', responseMessage(`subscription error : ${error.message}`), res)
   }
 })
-
-http.on('success', (data, res) => { // à l'écoute de l'évément success
-  res.writeHead(201, headers) // préparation de l'en-tête de la réponse 201 = ressource crée
-  res.write(data) // écriture de la réponse
-  res.end() // fin de l'écriture de la réponse et donc retour de la réponse au client (le navigateur ou postman)
-  http.emit('app:db:closed') // emission de l'événement pour fermer la connexion à la base de données
-})
-
-http.on('app:404', (data, res) => { // à l'écoute de l'événement not found
-  res.writeHead(404, headers)
-  res.write(data)
-  res.end()
+// Réponse au client
+http.on('app:end', (data, res) => {
+  const status = /success/i.test(data) ? 201 : 404
+  res.writeHead(status, headers).end(data)
   http.emit('app:db:closed')
 })

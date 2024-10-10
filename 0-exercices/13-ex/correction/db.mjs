@@ -2,11 +2,10 @@ import sqlite3 from 'sqlite3'
 import { readFile } from 'node:fs/promises'
 
 export default class Db {
-  instance
-
   constructor (filename, requests) {
     this.filename = filename
     this.requests = requests
+    this.instance = null
   }
 
   async connect () { // Connexion à la base de données sqlite (un fichier)
@@ -41,12 +40,8 @@ export default class Db {
 
   end () { // fermeture de la connexion à la bdd
     this.instance.close((err) => {
-      if (err) {
-        console.error('error close database', err)
-        console.info('can\'t close database')
-      } else {
-        console.info('database closed')
-      }
+      if (err) console.error('error close database', err)
+      else console.info('database closed')
     })
   }
 }
