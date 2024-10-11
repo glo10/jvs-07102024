@@ -1,40 +1,17 @@
 import { createServer } from 'node:http'
-import { resolve, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import Database from './classes/db.mjs'
 import { requests } from './database/user-table-requests.mjs'
-
-const PORT = 7000
-const BASE = `http://localhost:${PORT}/`
+import { PORT, BASEURL, ROOTDIR, HEADERS, CUSTOM_EVENTS } from './config/parameters.mjs'
+import { responseMessage, formValidation } from './functions/utils.mjs'
 const http = createServer().listen(PORT, () => {
-  console.info(`Server on ${BASE}`)
+  console.info(`Server on ${BASEURL}`)
 })
-const headers = { 'Content-Type': 'application/json' }
 // Résolution de chemin pour récupérer le fichier app.sqlite
-const DIR = dirname(fileURLToPath(import.meta.url))
-const dbFile = resolve(DIR, 'database', 'app.sqlite')
+const dbFile = resolve(ROOTDIR, 'database', 'app.sqlite')
 let db = new Database(dbFile, requests)
-const responseMessage = (message) => `{"message":"${message}"}`
-const formValidation = (data) => {
-  data = JSON.parse(data)
-  if (!data.email || !data.password) {
-    throw new Error('email or password required')
-  }
-  data = [
-    data.lastname,
-    data.firstname,
-    data.email,
-    data.password,
-    data.age,
-    data.country,
-    data.city,
-    data.cityLatitude,
-    data.cityLongitude
-  ]
-  return data
-}
 // Fermeture connexion à la BDD
-http.on('app:db:closed', () => db.end())
+http.on(CUSTOM_EVENTS.closedb, () => db.end())
 // Traitement de la requête
 http.on('request', (req, res) => {
   req.setEncoding('utf8')
@@ -45,14 +22,14 @@ http.on('request', (req, res) => {
         req.on('data', (chunk) => { body += chunk })
         req.on('end', () => http.emit('app:subscribe', body, res))
       } else { // mauvaise requête côté client
-        http.emit('app:end', responseMessage('wrong endpoint'), res)
+        http.emit(CUSTOM_EVENTS.end, responseMessage('wrong endpoint'), res)
       }
     } catch (error) {
       // Attention, renvoyer directement l'erreur au client peut avoir des lourdes csq au niveau de la sécurité
-      http.emit('app:end', responseMessage(`database error : ${error.message}`), res)
+      http.emit(CUSTOM_EVENTS.end, responseMessage(`database error : ${error.message}`), res)
     }
   } else { // Pas une méthode POST
-    http.emit('app:end', responseMessage('wrong HTTP Method'), res)
+    http.emit(CUSTOM_EVENTS.end, responseMessage('wrong HTTP Method'), res)
   }
 })
 // Traitement des données envoyées
@@ -66,15 +43,15 @@ http.on('app:subscribe', async (data, res) => { // à l'écoute de l'événment 
       if (!error) { // insertion non réussi
         msg = responseMessage('success')
       }
-      http.emit('app:end', msg, res)
+      http.emit(CUSTOM_EVENTS.end, msg, res)
     })
   } catch (error) {
-    http.emit('app:end', responseMessage(`subscription error : ${error.message}`), res)
+    http.emit(CUSTOM_EVENTS.end, responseMessage(`subscription error : ${error.message}`), res)
   }
 })
 // Réponse au client
-http.on('app:end', (data, res) => {
+http.on(CUSTOM_EVENTS.end, (data, res) => {
   const status = /success/i.test(data) ? 201 : 404
-  res.writeHead(status, headers).end(data)
-  http.emit('app:db:closed')
+  res.writeHead(status, HEADERS).end(data)
+  http.emit(CUSTOM_EVENTS.closedb)
 })
