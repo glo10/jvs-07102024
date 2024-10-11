@@ -33,17 +33,20 @@ http.on('request', (req, res) => {
   }
 })
 // Traitement des données envoyées
-http.on('app:subscribe', async (data, res) => { // à l'écoute de l'événment app:subscribe
+http.on('app:subscribe', (data, res) => { // à l'écoute de l'événment app:subscribe
   try {
-    db = await db.connect()
-    data = formValidation(data)
-    // cherche à insérer un user dans la bdd
-    db.instance.run(db.requests.insert, data, (error) => {
-      let msg = responseMessage('user already exists')
-      if (!error) { // insertion non réussi
-        msg = responseMessage('success')
-      }
-      http.emit(CUSTOM_EVENTS.end, msg, res)
+    db.connect()
+    .then(ok => db = ok)
+    .then(() => {
+      data = formValidation(data)
+      // cherche à insérer un user dans la bdd
+      db.instance.run(db.requests.insert, data, (error) => {
+        let msg = responseMessage('user already exists')
+        if (!error) { // insertion non réussi
+          msg = responseMessage('success')
+        }
+        http.emit(CUSTOM_EVENTS.end, msg, res)
+      })
     })
   } catch (error) {
     http.emit(CUSTOM_EVENTS.end, responseMessage(`subscription error : ${error.message}`), res)

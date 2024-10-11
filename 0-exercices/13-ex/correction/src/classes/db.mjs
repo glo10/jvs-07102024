@@ -2,10 +2,10 @@ import sqlite3 from 'sqlite3'
 import { readFile } from 'node:fs/promises'
 
 export default class Db {
-  instance
   constructor (filename, requests) {
     this.filename = filename
     this.requests = requests
+    this.instance = null
   }
 
   async connect () { // Connexion à la base de données sqlite (un fichier)
@@ -13,7 +13,6 @@ export default class Db {
       if (err) {
         throw new Error('database file does not exist')
       }
-      console.info('database found')
     }).then(() => { // Connexion Ok, on stocke l'objet dans une propriété pour pouvoir facilement l'utiliser pour toutes nos ops
       this.instance = new sqlite3.Database(this.filename, sqlite3.OPEN_READWRITE)
       this.createTable() // création de la table
